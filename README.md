@@ -1,6 +1,6 @@
-# AI Powered Car Counting Systme
+# AI Powered Car Counting System
 
-This backend runs on **Raspberry Pi 4** with a **USB camera**.  
+This System runs on **Raspberry Pi 4** with a **USB camera**.  
 It detects and counts cars in **real-time** using **YOLOv8 (n variant)** and provides a simple **REST API** for the Flutter mobile app.
 
 ---
