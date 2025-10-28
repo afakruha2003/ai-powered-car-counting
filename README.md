@@ -1,4 +1,4 @@
-# Backend (Raspberry Pi + Flask + YOLOv8)
+# Backend (Raspberry Pi + YOLOv8)
 
 This backend runs on **Raspberry Pi 4** with a **USB camera**.  
 It detects and counts cars in **real-time** using **YOLOv8 (n variant)** and provides a simple **REST API** for the Flutter mobile app.
@@ -20,7 +20,6 @@ It detects and counts cars in **real-time** using **YOLOv8 (n variant)** and pro
 - Raspberry Pi OS (Bullseye / Bookworm)
 - Python 3.9+
 - pip (Python package manager)
-- Flask (for REST API)
 - OpenCV (camera access)
 - Ultralytics YOLOv8 (object detection)
 
