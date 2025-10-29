@@ -1,4 +1,4 @@
-import Counter from "../models/counter.model.js";
+import Counter from "../models/counterModel.js";
 
 const initCounter = async () => {
    const exists = await Counter.findOne({ name: "carCounter" });
