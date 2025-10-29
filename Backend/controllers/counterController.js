@@ -12,7 +12,7 @@ export const incrementCounter = asyncHandler(async (req, res) => {
    res.status(200).json({
       success: true,
       message: "counter increment done successfully.",
-      count: updated.value,
+      newCountcount: updated.value,
    });
 });
 
@@ -22,7 +22,7 @@ export const resetCounter = asyncHandler(async (req, res) => {
    res.status(200).json({
       success: true,
       message: "counter resete done successfully.",
-      count: updated.value,
+      newCount: updated.value,
    });
 });
 
@@ -32,6 +32,6 @@ export const getCounter = asyncHandler(async (req, res) => {
    res.status(200).json({
       success: true,
       message: "counter resete done successfully.",
-      count,
+      newCount: count.value,
    });
 });
