@@ -1,15 +1,22 @@
 import express from "express";
 const app = express();
-import dotenv from "dotenv"
-import carRouter from "./routes/carRoutes.js"
-import errorController from "./controllers/errorController.js"
+import dotenv from "dotenv";
+import counterRouter from "./routes/counterRoutes.js";
+import errorController from "./controllers/errorController.js";
+import connectDB from "./config/connectDB.js";
+import initCounter from "./config/initCounter.js";
 
-dotenv.config()
+dotenv.config();
 
-app.use("/api", carRouter)
-app.use(errorController)
+connectDB();
+initCounter();
 
+app.use("/api/counter", counterRouter);
 
-app.listen(5000, () => {
-  console.log('Server running on port 5000');
+app.use(errorController);
+
+const PORT = process.env.PORT || 8001;
+
+app.listen(PORT, () => {
+   console.log(`Server running on port: ${PORT}`);
 });
