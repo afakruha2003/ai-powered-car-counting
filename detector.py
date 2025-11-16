@@ -6,20 +6,19 @@ import threading
 
 class Detector:
     def __init__(self, model_path="yolov8n.pt", video_source=0):
-        # YOLO modelini yükle
+
         self.model = YOLO(model_path)
 
-        # Kamera veya video kaynağı
+       
         self.cap = cv2.VideoCapture(video_source)
 
-        # SORT tracker
+     
         self.tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
 
-        # Sayaç
         self.total_count = 0
         self.counted_ids = set()
 
-        # Mevcut frame
+      
         self.current_frame = None
 
         self.running = False
@@ -59,18 +58,18 @@ class Detector:
                 cx = int((x1 + x2) / 2)
                 cy = int((y1 + y2) / 2)
 
-                # Çerçeve ve ID göster
+                
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
                 cv2.putText(frame, f'ID {int(track_id)}', (x1, y1 - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
 
-                # Orta çizgi geçtiyse say
+                
                 if line_y - 10 < cy < line_y + 10:
                     if track_id not in self.counted_ids:
                         self.total_count += 1
                         self.counted_ids.add(track_id)
 
-            # Toplam araç sayısı
+            
             cv2.putText(frame, f'Total Cars: {self.total_count}', (20, 40),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
