@@ -118,7 +118,7 @@ Returns the current camera frame (JPEG) with detection boxes.
 ```
 backend_pi/
 │── README.md                 # This file
-│── app.py                    # Flask server
+│── app.py                    
 │── car_count_tracking.py     # YOLO + SORT counting
 │── requirements.txt          # Python dependencies
 │── yolov8n.pt                # YOLOv8 model
