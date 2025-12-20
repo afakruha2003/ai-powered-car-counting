@@ -1,20 +1,21 @@
-import cv2
+from picamera2 import Picamera2
 
 
 class VideoStream:
-    def __init__(self, source=0):
-        self.cap = cv2.VideoCapture(source)
+    def __init__(self, width=640, height=480):
+        self.picam2 = Picamera2()
+        config = self.picam2.create_video_configuration(
+            main={"size": (width, height), "format": "RGB888"}
+        )
+        self.picam2.configure(config)
+        self.picam2.start()
 
-        if not self.cap.isOpened():
-            print(f"[ERROR] Could not open video source: {source}")
-        else:
-            print(f"[INFO] Video source opened successfully: {source}")
+        print("[INFO] Raspberry Pi Camera (OV5647) started")
 
     def read(self):
-        if self.cap is None:
-            return False, None
-        return self.cap.read()
+        frame = self.picam2.capture_array()
+        return True, frame
 
     def release(self):
-        if self.cap is not None:
-            self.cap.release()
+        self.picam2.stop()
+        print("[INFO] Camera stopped")
