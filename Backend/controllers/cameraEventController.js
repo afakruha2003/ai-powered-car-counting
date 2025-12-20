@@ -2,8 +2,9 @@ import Garage from "../models/garageModel";
 import CameraEvent from "../models/cameraEventModel";
 import GarageLiveState from "../models/garageLiveStateModel";
 import GarageStats from "../models/garageStatsModel";
+import asyncHandler from "express-async-handler";
 
-exports.receiveCameraData = async (req, res) => {
+export const receiveCameraData = asyncHandler(async (req, res) => {
    const { cameraId, incoming, outgoing } = req.body;
 
    const garage = await Garage.findOne({ uniqueCameraId: cameraId });
@@ -91,4 +92,4 @@ exports.receiveCameraData = async (req, res) => {
       deltaOutgoing,
       currentCars: liveState.currentCars,
    });
-};
+});
