@@ -14,6 +14,16 @@ const garageLiveStateSchema = new mongoose.Schema(
          default: 0,
       },
 
+      lastIncomingCount: {
+         type: Number,
+         default: 0,
+      },
+
+      lastOutgoingCount: {
+         type: Number,
+         default: 0,
+      },
+
       lastEventAt: {
          type: Date,
       },
