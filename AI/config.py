@@ -1,8 +1,7 @@
-# config.py
-
 BASE_URL = "https://ai-powered-car-counting.onrender.com/api"
 
-COUNTER_TOTAL_ENDPOINT = f"{BASE_URL}/counter/increment"
+# Single endpoint that accepts both incoming/outgoing counts independently
+COUNTER_COUNTS_ENDPOINT = f"{BASE_URL}/counter/update"
 FRAME_UPLOAD_ENDPOINT   = f"{BASE_URL}/video/frame"
 
 CAMERA_ID = "cam_1"
