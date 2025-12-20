@@ -10,9 +10,8 @@ from frame_annotator import FrameAnnotator
 class Detector:
     
 
-    def __init__(self, model_path="yolov8n.pt", video_source=0):
-    
-        self.stream = VideoStream(video_source)
+    def __init__(self, model_path="yolov8n.pt"):
+        self.stream = VideoStream()
         self.yolo = YoloVehicleDetector(model_path=model_path)
         self.tracker = VehicleTracker(max_age=20, min_hits=3, iou_threshold=0.3)
         self.counter = LineCounter(margin=10)
