@@ -1,22 +1,31 @@
-
 import requests
-from config import COUNTER_TOTAL_ENDPOINT, FRAME_UPLOAD_ENDPOINT, CAMERA_ID
+from config import COUNTER_COUNTS_ENDPOINT, FRAME_UPLOAD_ENDPOINT, CAMERA_ID
 
 
-def send_total_to_backend(total: int, camera_id: str = CAMERA_ID):
-    url = f"{COUNTER_TOTAL_ENDPOINT}/{total}"
+def send_counts_to_backend(
+    incoming_count: int,
+    outgoing_count: int,
+    camera_id: str = CAMERA_ID,
+):
+
+    payload = {
+        "cameraId": camera_id,
+        "incoming": incoming_count,  
+        "outgoing": outgoing_count,  
+    }
 
     try:
-        response = requests.post(url, timeout=5)
+        response = requests.post(COUNTER_COUNTS_ENDPOINT, json=payload, timeout=5)
         response.raise_for_status()
         data = response.json()
-        print(f"[API] Increment total by {total}. Backend response: {data}")
+        print(f"[API] Sent counts incoming={incoming_count}, outgoing={outgoing_count}. Backend response: {data}")
     except Exception as e:
-        print(f"[API ERROR] Failed to send total={total}: {e}")
+        print(f"[API ERROR] Failed to send counts incoming={incoming_count}, outgoing={outgoing_count}: {e}")
 
 
 def send_frame_to_backend(frame_jpeg_bytes: bytes, camera_id: str = CAMERA_ID):
     if frame_jpeg_bytes is None:
+        print("[API WARN] No frame bytes to send.")
         return
 
     files = {
