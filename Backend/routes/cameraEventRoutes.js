@@ -1,5 +1,5 @@
 import express from "express";
-import { receiveCameraData } from "../controllers/cameraEventController";
+import { receiveCameraData } from "../controllers/cameraEventController.js";
 
 const router = express.Router();
 

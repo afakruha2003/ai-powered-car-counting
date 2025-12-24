@@ -1,7 +1,7 @@
-import Garage from "../models/garageModel";
-import CameraEvent from "../models/cameraEventModel";
-import GarageLiveState from "../models/garageLiveStateModel";
-import GarageStats from "../models/garageStatsModel";
+import Garage from "../models/garageModel.js";
+import CameraEvent from "../models/cameraEventModel.js";
+import GarageLiveState from "../models/garageLiveStateModel.js";
+import GarageStats from "../models/garageStatsModel.js";
 import asyncHandler from "express-async-handler";
 
 export const receiveCameraData = asyncHandler(async (req, res) => {
@@ -20,6 +20,7 @@ export const receiveCameraData = asyncHandler(async (req, res) => {
    if (!liveState) {
       await GarageLiveState.create({
          garage: garage._id,
+         owner: garage.owner,
          currentCars: 0,
          lastIncomingCount: incoming,
          lastOutgoingCount: outgoing,

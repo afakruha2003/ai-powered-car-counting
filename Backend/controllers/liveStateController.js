@@ -1,14 +1,18 @@
-import GarageLiveState from "../models/garageLiveStateModel";
-import Garage from "../models/garageModel";
+import GarageLiveState from "../models/garageLiveStateModel.js";
+import Garage from "../models/garageModel.js";
 import asyncHandler from "express-async-handler";
-import CustomError from "../utilities/customError";
+import CustomError from "../utilities/customError.js";
 
 export const getLiveState = asyncHandler(async (req, res) => {
    const garageId = req.params.garageId;
 
-   const garage = await Garage.findById(garageId);
+   const garage = await Garage.findOne({
+      _id: garageId,
+      owner: req.user._id,
+   });
+
    if (!garage) {
-      throw new CustomError("Garage not found", 404);
+      throw new CustomError("Garage not found or not authorized", 404);
    }
 
    const liveState = await GarageLiveState.findOne({ garage: garageId });

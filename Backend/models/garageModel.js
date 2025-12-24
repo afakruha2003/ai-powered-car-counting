@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const garageSchema = new mongoose.Schema(
    {
+      owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       name: { type: String, required: true },
 
       capacity: { type: Number, required: true },

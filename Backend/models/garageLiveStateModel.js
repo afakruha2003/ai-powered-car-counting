@@ -8,6 +8,12 @@ const garageLiveStateSchema = new mongoose.Schema(
          unique: true,
          required: true,
       },
+      
+      owner: {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "User",
+         required: true,
+      },
 
       currentCars: {
          type: Number,

@@ -1,4 +1,4 @@
-import SystemStatus from "../models/systemStatusModel";
+import SystemStatus from "../models/systemStatusModel.js";
 import aysncHandler from "express-async-handler";
 
 export const updateCameraPing = aysncHandler(async (req, res) => {

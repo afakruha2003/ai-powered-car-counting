@@ -1,5 +1,5 @@
 import express from "express";
-import { updateCameraPing, getSystemStatus } from "../controllers/systemStatusController";
+import { updateCameraPing, getSystemStatus } from "../controllers/systemStatusController.js";
 
 const router = express.Router();
 
