@@ -31,11 +31,12 @@ class LineCounter:
         prev_cy = self.last_cy.get(track_id)
         self.last_cy[track_id] = cy
 
-     
+        # أول مرة نشوف هالـ id، ما بنقدر نحدد اتجاه
         if prev_cy is None:
             continue
 
-    
+        # بدون فلسفة زيادة: شوف إذا الخط بين القديم والجديد
+        # TOP -> BOTTOM (down)
         if prev_cy < line_y and cy >= line_y:
             key = ("down", int(track_id))
             if key not in self.counted_ids:
