@@ -1,19 +1,50 @@
-import React, { useState } from 'react';
-import { ArrowLeft, MapPin, DollarSign, Users, Clock, Camera, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, MapPin, DollarSign, Users, CheckCircle } from 'lucide-react';
 import Input from '../../Input';
 import Button from '../../Button';
-import StatusChip from '../../StatusChip';
+import { useGarage, useLiveState } from '../../../hooks';
 
 interface AdminParkingManagementProps {
   onBack: () => void;
 }
 
 export default function AdminParkingManagement({ onBack }: AdminParkingManagementProps) {
-  const [parkingName, setParkingName] = useState('Downtown Plaza');
-  const [address, setAddress] = useState('123 Main Street, New York');
-  const [pricePerHour, setPricePerHour] = useState('3.00');
-  const [totalCapacity, setTotalCapacity] = useState('120');
-  const [isOpen, setIsOpen] = useState(true);
+  const { garage, updateGarage, loading } = useGarage();
+  const { liveState } = useLiveState(undefined, true, 5000);
+
+  const [parkingName, setParkingName] = useState('');
+  const [pricePerHour, setPricePerHour] = useState('');
+  const [totalCapacity, setTotalCapacity] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (garage) {
+      setParkingName(garage.name || '');
+      setPricePerHour(garage.pricePerHour?.toString() || '');
+      setTotalCapacity(garage.capacity?.toString() || '');
+    }
+  }, [garage]);
+
+  const handleSave = async () => {
+    setSaveSuccess(false);
+    setSaveError(null);
+
+    try {
+      await updateGarage({
+        name: parkingName,
+        pricePerHour: parseFloat(pricePerHour),
+        capacity: parseInt(totalCapacity),
+      });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err: any) {
+      setSaveError(err.message || 'Failed to save changes');
+    }
+  };
+
+  const currentCars = liveState?.currentCars || 0;
+  const availableSpots = liveState?.availableSpots || 0;
 
   return (
     <div className="h-full bg-[#F7F8FA] overflow-y-auto">
@@ -46,12 +77,6 @@ export default function AdminParkingManagement({ onBack }: AdminParkingManagemen
               icon={<MapPin className="w-5 h-5" />}
             />
             <Input
-              label="Address"
-              value={address}
-              onChange={setAddress}
-              icon={<MapPin className="w-5 h-5" />}
-            />
-            <Input
               label="Price per Hour ($)"
               type="number"
               value={pricePerHour}
@@ -68,102 +93,47 @@ export default function AdminParkingManagement({ onBack }: AdminParkingManagemen
           </div>
         </div>
 
-        {/* Operating Status */}
-        <div className="bg-white rounded-[16px] p-6 shadow-sm">
-          <h3 className="text-base mb-4">Operating Status</h3>
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-[12px]">
-            <div>
-              <p className="text-sm text-gray-700 mb-1">Parking Status</p>
-              <p className="text-xs text-gray-500">Toggle to open/close parking</p>
-            </div>
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className={`relative w-14 h-7 rounded-full transition-colors ${
-                isOpen ? 'bg-[#4CAF50]' : 'bg-gray-300'
-              }`}
-            >
-              <div
-                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform shadow-md ${
-                  isOpen ? 'translate-x-7' : 'translate-x-0'
-                }`}
-              />
-            </button>
-          </div>
-          <div className="mt-3 flex items-center gap-2">
-            <StatusChip status={isOpen ? 'success' : 'error'} label={isOpen ? 'Open' : 'Closed'} />
-          </div>
-        </div>
-
-        {/* Operating Hours */}
-        <div className="bg-white rounded-[16px] p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-5 h-5 text-[#3D5AFE]" />
-            <h3 className="text-base">Operating Hours</h3>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-[12px]">
-              <span className="text-sm text-gray-700">Monday - Friday</span>
-              <span className="text-sm text-gray-600">06:00 - 22:00</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-[12px]">
-              <span className="text-sm text-gray-700">Saturday</span>
-              <span className="text-sm text-gray-600">08:00 - 20:00</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-[12px]">
-              <span className="text-sm text-gray-700">Sunday</span>
-              <span className="text-sm text-gray-600">08:00 - 18:00</span>
-            </div>
-          </div>
-        </div>
 
         {/* Live Statistics */}
         <div className="bg-white rounded-[16px] p-6 shadow-sm">
           <h3 className="text-base mb-4">Live Statistics</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4 bg-[#3D5AFE]/5 rounded-[12px]">
-              <div className="text-2xl text-[#3D5AFE] mb-1">82</div>
+              <div className="text-2xl text-[#3D5AFE] mb-1">{currentCars}</div>
               <div className="text-xs text-gray-500">Vehicles Inside</div>
             </div>
             <div className="text-center p-4 bg-[#4CAF50]/5 rounded-[12px]">
-              <div className="text-2xl text-[#4CAF50] mb-1">38</div>
+              <div className="text-2xl text-[#4CAF50] mb-1">{availableSpots}</div>
               <div className="text-xs text-gray-500">Free Slots</div>
             </div>
           </div>
           <div className="mt-4 p-3 bg-gray-50 rounded-[12px] flex items-center justify-between">
-            <span className="text-sm text-gray-600">Current Revenue Today</span>
-            <span className="text-base text-[#4CAF50]">$2,541</span>
+            <span className="text-sm text-gray-600">Price per Hour</span>
+            <span className="text-base text-[#4CAF50]">${garage?.pricePerHour || 0}</span>
           </div>
         </div>
 
-        {/* Camera Status */}
-        <div className="bg-white rounded-[16px] p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Camera className="w-5 h-5 text-[#3D5AFE]" />
-            <h3 className="text-base">Camera & API Status</h3>
+        {/* Success/Error Messages */}
+        {saveSuccess && (
+          <div className="p-3 bg-green-50 border border-green-200 rounded-[12px]">
+            <p className="text-sm text-green-600">Changes saved successfully!</p>
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Camera Status</span>
-              <StatusChip status="success" label="Connected" />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">AI Detection</span>
-              <StatusChip status="success" label="Active" />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Last Update</span>
-              <span className="text-sm text-gray-700">5 seconds ago</span>
-            </div>
+        )}
+        {saveError && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-[12px]">
+            <p className="text-sm text-red-600">{saveError}</p>
           </div>
-        </div>
+        )}
 
         {/* Save Button */}
         <Button
           variant="primary"
           fullWidth
           icon={<CheckCircle className="w-5 h-5" />}
+          onClick={handleSave}
+          disabled={loading}
         >
-          Save Changes
+          {loading ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
     </div>

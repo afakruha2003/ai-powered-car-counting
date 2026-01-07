@@ -1,6 +1,7 @@
 import express from "express";
 const app = express();
 import dotenv from "dotenv";
+import cors from "cors";
 import garageRoutes from "./routes/garageRoutes.js";
 import cameraRoutes from "./routes/cameraEventRoutes.js";
 import statisticsRoutes from "./routes/statusRouts.js";
@@ -13,6 +14,11 @@ import cookieParser from "cookie-parser";
 
 dotenv.config();
 connectDB();
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 

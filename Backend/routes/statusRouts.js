@@ -4,6 +4,6 @@ import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/:garageId", protect, getStats);
+router.post("/:garageId", protect, getStats);
 
 export default router;
