@@ -1,34 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { statisticsService } from '../services';
 import { GarageStats, StatsRequest } from '../types/api';
 import { storage } from '../utils/storage';
 
-export const useStatistics = () => {
+export const useStatistics = (params?: StatsRequest, autoRefresh: boolean = false, refreshInterval: number = 30000, garageId?: string) => {
   const [stats, setStats] = useState<GarageStats[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isFirstFetchRef = useRef(true);
 
-  const fetchStats = async (params: StatsRequest, garageId?: string) => {
-    const id = garageId || storage.getGarageId();
+  const fetchStats = async (fetchParams?: StatsRequest, fetchGarageId?: string) => {
+    const id = fetchGarageId || garageId || storage.getGarageId();
     if (!id) {
       setError('No garage ID found');
       return;
     }
 
-    setLoading(true);
+    const requestParams = fetchParams || params;
+    if (!requestParams) {
+      setError('No parameters provided');
+      return;
+    }
+
+    // Only show loading on first fetch
+    if (isFirstFetchRef.current) {
+      setLoading(true);
+    }
     setError(null);
     try {
-      const data = await statisticsService.getStats(id, params);
+      const data = await statisticsService.getStats(id, requestParams);
       setStats(data);
+      if (isFirstFetchRef.current) {
+        isFirstFetchRef.current = false;
+      }
       return data;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to fetch statistics';
       setError(errorMessage);
-      throw err;
+      console.error('Statistics fetch error:', err);
     } finally {
-      setLoading(false);
+      if (isFirstFetchRef.current) {
+        setLoading(false);
+      }
     }
   };
+
+  useEffect(() => {
+    if (autoRefresh && params) {
+      fetchStats();
+      
+      intervalRef.current = setInterval(() => {
+        fetchStats();
+      }, refreshInterval);
+
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
+    }
+  }, [autoRefresh, refreshInterval, params?.bucketType, params?.from, params?.to]);
 
   return {
     stats,

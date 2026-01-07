@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Camera, DollarSign, Car, Activity } from 'lucide-react';
 import StatusChip from '../../StatusChip';
 import { useLiveState, useSystemStatus, useStatistics } from '../../../hooks';
@@ -6,10 +6,15 @@ import { useLiveState, useSystemStatus, useStatistics } from '../../../hooks';
 export default function AdminLive() {
   const { liveState } = useLiveState(undefined, true, 3000);
   const { systemStatus } = useSystemStatus(undefined, true, 10000);
-  const { stats, fetchStats } = useStatistics();
+  const { stats } = useStatistics({ bucketType: 'HOUR' }, true, 10000);
+  const [, setTick] = useState(0);
 
+  // Update timestamp display every second
   useEffect(() => {
-    fetchStats({ bucketType: 'HOUR' });
+    const interval = setInterval(() => {
+      setTick(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const currentCars = liveState?.currentCars || 0;
@@ -26,7 +31,9 @@ export default function AdminLive() {
     const seconds = Math.floor(diff / 1000);
     if (seconds < 60) return `${seconds} seconds ago`;
     const minutes = Math.floor(seconds / 60);
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
   };
 
   return (

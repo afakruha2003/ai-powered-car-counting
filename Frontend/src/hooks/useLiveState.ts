@@ -7,6 +7,7 @@ export const useLiveState = (garageId?: string, autoRefresh = false, refreshInte
   const [liveState, setLiveState] = useState<LiveState | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFirstFetch, setIsFirstFetch] = useState(true);
 
   const fetchLiveState = useCallback(async () => {
     const id = garageId || storage.getGarageId();
@@ -15,20 +16,27 @@ export const useLiveState = (garageId?: string, autoRefresh = false, refreshInte
       return;
     }
 
-    setLoading(true);
+    // Only show loading on first fetch
+    if (isFirstFetch) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const data = await liveStateService.getLiveState(id);
       setLiveState(data);
+      if (isFirstFetch) {
+        setIsFirstFetch(false);
+      }
       return data;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to fetch live state';
       setError(errorMessage);
-      throw err;
     } finally {
-      setLoading(false);
+      if (isFirstFetch) {
+        setLoading(false);
+      }
     }
-  }, [garageId]);
+  }, [garageId, isFirstFetch]);
 
   useEffect(() => {
     fetchLiveState();

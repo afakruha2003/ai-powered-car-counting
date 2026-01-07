@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Car, DollarSign, Users, TrendingUp } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ChartContainer from '../../ChartContainer';
@@ -9,13 +9,9 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ onManageClick: _onManageClick }: AdminDashboardProps) {
-  const { liveState, loading: liveLoading } = useLiveState(undefined, true, 5000);
+  const { liveState } = useLiveState(undefined, true, 5000);
   const { garage } = useGarage();
-  const { stats, fetchStats } = useStatistics();
-
-  useEffect(() => {
-    fetchStats({ bucketType: 'HOUR' });
-  }, []);
+  const { stats } = useStatistics({ bucketType: 'HOUR' }, true, 10000);
 
   const currentCars = liveState?.currentCars || 0;
   const capacity = garage?.capacity || 120;
@@ -60,7 +56,7 @@ export default function AdminDashboard({ onManageClick: _onManageClick }: AdminD
             <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center bg-[rgba(81,134,255,0.32)]">
               <Car className="w-6 h-6 text-[#536DFE]" />
             </div>
-            <div className="text-2xl text-[#3D5AFE] mb-1">{liveLoading ? '...' : currentCars}</div>
+            <div className="text-2xl text-[#3D5AFE] mb-1">{currentCars}</div>
             <div className="text-xs text-gray-500">Cars Inside</div>
           </div>
 
@@ -76,7 +72,7 @@ export default function AdminDashboard({ onManageClick: _onManageClick }: AdminD
             <div className="w-10 h-10 bg-[#FFC107]/10 rounded-full flex items-center justify-center mb-3">
               <Users className="w-5 h-5 text-[#FFC107]" />
             </div>
-            <div className="text-2xl text-[#FFC107] mb-1">{liveLoading ? '...' : `${Math.round(occupancyRate)}%`}</div>
+            <div className="text-2xl text-[#FFC107] mb-1">{Math.round(occupancyRate)}%</div>
             <div className="text-xs text-gray-500">Occupancy</div>
           </div>
         </div>

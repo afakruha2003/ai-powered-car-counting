@@ -1,5 +1,4 @@
-import React from 'react';
-import { Info, LogOut, User, Building2 } from 'lucide-react';
+import { Info, LogOut, User, Building2, Camera, Copy } from 'lucide-react';
 import Button from '../../Button';
 import { useAuth, useGarage } from '../../../hooks';
 
@@ -52,6 +51,37 @@ export default function AdminSettings({ onLogout, onManageParking }: AdminSettin
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Camera ID */}
+        <div className="bg-white rounded-[16px] p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Camera className="w-5 h-5 text-[#3D5AFE]" />
+            <h3 className="text-base">Camera Configuration</h3>
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-2">Unique Camera ID</label>
+            <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-[12px]">
+              <Camera className="w-5 h-5 text-gray-400" />
+              <span className="text-sm text-gray-700 font-mono flex-1">
+                {garageLoading ? 'Loading...' : garage?.uniqueCameraId || 'N/A'}
+              </span>
+              <button
+                onClick={() => {
+                  if (garage?.uniqueCameraId) {
+                    navigator.clipboard.writeText(garage.uniqueCameraId);
+                  }
+                }}
+                className="p-2 hover:bg-gray-200 rounded-[8px] transition-colors"
+                title="Copy Camera ID"
+              >
+                <Copy className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Use this ID to configure your camera system for data transmission
+            </p>
           </div>
         </div>
 
