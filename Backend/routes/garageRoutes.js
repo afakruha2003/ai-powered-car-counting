@@ -4,11 +4,9 @@ import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// router.post("/", protect, createGarage);
+router.get("/me", protect, getMyGarages);
 
 router.put("/:id", protect, updateGarage);
-
-// router.get("/me", protect, getMyGarages);
 
 router.get("/:id", protect, getGarage);
 

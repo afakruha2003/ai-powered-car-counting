@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { authService } from './services';
+import { storage } from './utils/storage';
 import SplashScreen from './components/screens/SplashScreen';
 import LoginScreen from './components/screens/LoginScreen';
+import RegisterScreen from './components/screens/RegisterScreen';
 import AdminDashboard from './components/screens/admin/AdminDashboard';
 import AdminLive from './components/screens/admin/AdminLive';
 import AdminReports from './components/screens/admin/AdminReports';
@@ -8,11 +11,22 @@ import AdminSettings from './components/screens/admin/AdminSettings';
 import AdminParkingManagement from './components/screens/admin/AdminParkingManagement';
 import BottomNavigation from './components/BottomNavigation';
 
-type Screen = 'splash' | 'login' | 'admin-dashboard' | 'admin-live' | 'admin-reports' | 'admin-settings' | 'admin-management';
+type Screen = 'splash' | 'login' | 'register' | 'admin-dashboard' | 'admin-live' | 'admin-reports' | 'admin-settings' | 'admin-management';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('splash');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    const garageId = storage.getGarageId();
+    if (user && garageId) {
+      setIsLoggedIn(true);
+      if (currentScreen === 'login') {
+        setCurrentScreen('admin-dashboard');
+      }
+    }
+  }, []);
 
   // Splash screen auto-advances
   React.useEffect(() => {
@@ -29,7 +43,13 @@ export default function App() {
     setCurrentScreen('admin-dashboard');
   };
 
+  const handleRegister = () => {
+    setIsLoggedIn(true);
+    setCurrentScreen('admin-dashboard');
+  };
+
   const handleLogout = () => {
+    authService.logout();
     setIsLoggedIn(false);
     setCurrentScreen('login');
   };
@@ -39,7 +59,9 @@ export default function App() {
       case 'splash':
         return <SplashScreen />;
       case 'login':
-        return <LoginScreen onLogin={handleLogin} />;
+        return <LoginScreen onLogin={handleLogin} onGoToRegister={() => setCurrentScreen('register')} />;
+      case 'register':
+        return <RegisterScreen onRegister={handleRegister} onBackToLogin={() => setCurrentScreen('login')} />;
       case 'admin-dashboard':
         return <AdminDashboard onManageClick={() => setCurrentScreen('admin-management')} />;
       case 'admin-live':

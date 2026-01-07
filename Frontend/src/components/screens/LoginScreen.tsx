@@ -1,15 +1,31 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Mail, Lock, Building2 } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
+import { useAuth } from '../../hooks';
 
 interface LoginScreenProps {
   onLogin: () => void;
+  onGoToRegister: () => void;
 }
 
-export default function LoginScreen({ onLogin }: LoginScreenProps) {
+export default function LoginScreen({ onLogin, onGoToRegister }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login, loading, error } = useAuth();
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      return;
+    }
+
+    try {
+      await login({ email, password });
+      onLogin();
+    } catch (err) {
+      console.error('Login failed:', err);
+    }
+  };
 
   return (
     <div className="h-full bg-gradient-to-br from-[#3D5AFE] to-[#536DFE] p-6 flex flex-col">
@@ -54,15 +70,32 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
           <button className="text-sm text-[#3D5AFE] hover:underline">Forgot Password?</button>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-[12px]">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
         {/* Login Button */}
-        <Button variant="primary" fullWidth onClick={onLogin}>
-          Log In
+        <Button
+          variant="primary"
+          fullWidth
+          onClick={handleLogin}
+          disabled={loading || !email || !password}
+        >
+          {loading ? 'Logging in...' : 'Log In'}
         </Button>
 
         {/* Sign Up Link */}
         <div className="text-center mt-6">
           <span className="text-sm text-gray-600">Don't have an account? </span>
-          <button className="text-sm text-[#3D5AFE]">Request Access</button>
+          <button 
+            className="text-sm text-[#3D5AFE] hover:underline"
+            onClick={onGoToRegister}
+          >
+            Sign Up
+          </button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Info, LogOut, User, Building2 } from 'lucide-react';
 import Button from '../../Button';
+import { useAuth, useGarage } from '../../../hooks';
 
 interface AdminSettingsProps {
   onLogout: () => void;
@@ -8,6 +9,9 @@ interface AdminSettingsProps {
 }
 
 export default function AdminSettings({ onLogout, onManageParking }: AdminSettingsProps) {
+  const { user } = useAuth();
+  const { garage, loading: garageLoading } = useGarage();
+
   return (
     <div className="h-full bg-[#F7F8FA] overflow-y-auto">
       {/* Header */}
@@ -29,21 +33,23 @@ export default function AdminSettings({ onLogout, onManageParking }: AdminSettin
               <label className="block text-sm text-gray-600 mb-2">Name</label>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-[12px]">
                 <User className="w-5 h-5 text-gray-400" />
-                <span className="text-sm text-gray-700">John Doe</span>
+                <span className="text-sm text-gray-700">{user?.name || 'N/A'}</span>
               </div>
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-2">Email</label>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-[12px]">
                 <User className="w-5 h-5 text-gray-400" />
-                <span className="text-sm text-gray-700">john.doe@parking.com</span>
+                <span className="text-sm text-gray-700">{user?.email || 'N/A'}</span>
               </div>
             </div>
             <div className="p-3 bg-[#3D5AFE]/5 rounded-[12px] flex items-center gap-2">
               <Building2 className="w-5 h-5 text-[#3D5AFE]" />
               <div>
                 <p className="text-sm text-gray-700">Role: Autopark Owner</p>
-                <p className="text-xs text-gray-500 mt-0.5">Access to admin features</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {garageLoading ? 'Loading garage...' : garage ? `Managing: ${garage.name}` : 'Access to admin features'}
+                </p>
               </div>
             </div>
           </div>
