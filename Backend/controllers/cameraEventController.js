@@ -18,25 +18,22 @@ export const receiveCameraData = asyncHandler(async (req, res) => {
    let liveState = await GarageLiveState.findOne({ garage: garage._id });
 
    if (!liveState) {
-      await GarageLiveState.create({
+      liveState = await GarageLiveState.create({
          garage: garage._id,
          owner: garage.owner,
          currentCars: 0,
-         lastIncomingCount: incoming,
-         lastOutgoingCount: outgoing,
+         lastIncomingCount: 0,
+         lastOutgoingCount: 0,
          lastEventAt: timestamp,
-      });
-
-      return res.json({
-         success: true,
-         initialized: true,
       });
    }
 
    let deltaIncoming = incoming - liveState.lastIncomingCount;
    let deltaOutgoing = outgoing - liveState.lastOutgoingCount;
 
+   // Handle camera reset (counters went back to 0 or decreased)
    if (deltaIncoming < 0 || deltaOutgoing < 0) {
+      // Camera has reset its counters, update baseline without changing currentCars
       liveState.lastIncomingCount = incoming;
       liveState.lastOutgoingCount = outgoing;
       liveState.lastEventAt = timestamp;
@@ -45,6 +42,8 @@ export const receiveCameraData = asyncHandler(async (req, res) => {
       return res.json({
          success: true,
          resetDetected: true,
+         message: 'Camera counter reset detected, baseline updated',
+         currentCars: liveState.currentCars,
       });
    }
 
