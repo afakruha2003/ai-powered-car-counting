@@ -67,14 +67,56 @@ export const receiveCameraData = asyncHandler(async (req, res) => {
       timestamp,
    });
 
-   const bucketStart = new Date(timestamp);
-   bucketStart.setMinutes(0, 0, 0);
+   // Update HOUR bucket
+   const hourBucketStart = new Date(timestamp);
+   hourBucketStart.setMinutes(0, 0, 0);
 
    await GarageStats.findOneAndUpdate(
       {
          garage: garage._id,
          bucketType: "HOUR",
-         bucketStart,
+         bucketStart: hourBucketStart,
+      },
+      {
+         $inc: {
+            entries: deltaIncoming,
+            exits: deltaOutgoing,
+            estimatedRevenue: deltaIncoming * garage.pricePerHour,
+         },
+      },
+      { upsert: true }
+   );
+
+   // Update DAY bucket
+   const dayBucketStart = new Date(timestamp);
+   dayBucketStart.setHours(0, 0, 0, 0);
+
+   await GarageStats.findOneAndUpdate(
+      {
+         garage: garage._id,
+         bucketType: "DAY",
+         bucketStart: dayBucketStart,
+      },
+      {
+         $inc: {
+            entries: deltaIncoming,
+            exits: deltaOutgoing,
+            estimatedRevenue: deltaIncoming * garage.pricePerHour,
+         },
+      },
+      { upsert: true }
+   );
+
+   // Update WEEK bucket (week starts on Sunday)
+   const weekBucketStart = new Date(timestamp);
+   weekBucketStart.setDate(weekBucketStart.getDate() - weekBucketStart.getDay());
+   weekBucketStart.setHours(0, 0, 0, 0);
+
+   await GarageStats.findOneAndUpdate(
+      {
+         garage: garage._id,
+         bucketType: "WEEK",
+         bucketStart: weekBucketStart,
       },
       {
          $inc: {
