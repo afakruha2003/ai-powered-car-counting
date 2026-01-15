@@ -47,20 +47,29 @@ export const useStatistics = (params?: StatsRequest, autoRefresh: boolean = fals
   };
 
   useEffect(() => {
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
     if (autoRefresh && params) {
+      // Initial fetch
       fetchStats();
       
+      // Set up interval for auto-refresh
       intervalRef.current = setInterval(() => {
         fetchStats();
       }, refreshInterval);
-
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-      };
     }
-  }, [autoRefresh, refreshInterval, params?.bucketType, params?.from, params?.to]);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [autoRefresh, refreshInterval, params?.bucketType, params?.from, params?.to, garageId]);
 
   return {
     stats,

@@ -16,27 +16,35 @@ type Screen = 'splash' | 'login' | 'register' | 'admin-dashboard' | 'admin-live'
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('splash');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
+  // Check authentication on mount and restore session
   useEffect(() => {
-    const user = authService.getCurrentUser();
-    const garageId = storage.getGarageId();
-    if (user && garageId) {
-      setIsLoggedIn(true);
-      if (currentScreen === 'login') {
+    const checkAuth = () => {
+      const user = authService.getCurrentUser();
+      const garageId = storage.getGarageId();
+      
+      if (user && garageId) {
+        setIsLoggedIn(true);
         setCurrentScreen('admin-dashboard');
+      } else {
+        setIsLoggedIn(false);
       }
-    }
+      setIsCheckingAuth(false);
+    };
+    
+    checkAuth();
   }, []);
 
-  // Splash screen auto-advances
+  // Splash screen auto-advances (only if not logged in)
   React.useEffect(() => {
-    if (currentScreen === 'splash') {
+    if (currentScreen === 'splash' && !isCheckingAuth && !isLoggedIn) {
       const timer = setTimeout(() => {
         setCurrentScreen('login');
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [currentScreen]);
+  }, [currentScreen, isCheckingAuth, isLoggedIn]);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -77,7 +85,11 @@ export default function App() {
     }
   };
 
-  const showBottomNav = isLoggedIn && currentScreen !== 'admin-management';
+  const showBottomNav = isLoggedIn && 
+    currentScreen !== 'admin-management' && 
+    currentScreen !== 'splash' && 
+    currentScreen !== 'login' && 
+    currentScreen !== 'register';
 
   return (
     <div className="relative w-full h-screen bg-[#F7F8FA] overflow-hidden flex flex-col safe-area">

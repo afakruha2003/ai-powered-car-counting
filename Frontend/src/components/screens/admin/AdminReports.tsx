@@ -7,8 +7,42 @@ import { useStatistics, useLiveState } from '../../../hooks';
 
 export default function AdminReports() {
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const bucketType = activeTab === 'daily' ? 'HOUR' : activeTab === 'weekly' ? 'DAY' : 'WEEK';
-  const { stats } = useStatistics({ bucketType }, true, 30000);
+  
+  const statsParams = useMemo(() => {
+    const now = new Date();
+    
+    if (activeTab === 'daily') {
+      return { bucketType: 'HOUR' as const };
+    } else if (activeTab === 'weekly') {
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      weekStart.setHours(0, 0, 0, 0);
+      
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6); 
+      weekEnd.setHours(23, 59, 59, 999);
+      
+      return {
+        bucketType: 'DAY' as const,
+        from: weekStart.toISOString(),
+        to: weekEnd.toISOString()
+      };
+    } else {
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      monthStart.setHours(0, 0, 0, 0);
+      
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      monthEnd.setHours(23, 59, 59, 999);
+      
+      return {
+        bucketType: 'DAY' as const,
+        from: monthStart.toISOString(),
+        to: monthEnd.toISOString()
+      };
+    }
+  }, [activeTab]);
+  
+  const { stats } = useStatistics(statsParams, true, 30000);
   const { liveState } = useLiveState(undefined, true, 5000);
 
   const tabs = [
@@ -18,25 +52,26 @@ export default function AdminReports() {
   ];
 
   const chartData = useMemo(() => {
-    return stats.map(stat => {
+    return stats.map((stat) => {
       const date = new Date(stat.bucketStart);
       let label = '';
       
       if (activeTab === 'daily') {
         label = date.getHours().toString().padStart(2, '0') + ':00';
       } else if (activeTab === 'weekly') {
-        label = date.toLocaleDateString('en-US', { weekday: 'short' });
+        label = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
       } else {
-        const weekNum = Math.ceil(date.getDate() / 7);
-        label = `Week ${weekNum}`;
+        // Monthly view shows daily data
+        label = date.toLocaleDateString('en-US', { day: 'numeric' });
       }
       
       return {
         label,
         vehicles: stat.entries || 0,
         revenue: stat.estimatedRevenue || 0,
+        date: stat.bucketStart,
       };
-    }).sort((a, b) => a.label.localeCompare(b.label));
+    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [stats, activeTab]);
 
   const totalVehicles = useMemo(() => {
@@ -58,9 +93,17 @@ export default function AdminReports() {
       (stat.estimatedRevenue || 0) > (max.estimatedRevenue || 0) ? stat : max
     , stats[0]);
     const date = new Date(peak.bucketStart);
-    const time = activeTab === 'daily' 
-      ? date.getHours().toString().padStart(2, '0') + ':00'
-      : date.toLocaleDateString('en-US', { weekday: 'short' });
+    let time = '';
+    
+    if (activeTab === 'daily') {
+      time = date.getHours().toString().padStart(2, '0') + ':00';
+    } else if (activeTab === 'weekly') {
+      time = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    } else {
+      // Monthly view shows day number
+      time = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+    
     return { time, revenue: peak.estimatedRevenue || 0 };
   }, [stats, activeTab]);
 
@@ -70,7 +113,6 @@ export default function AdminReports() {
       return;
     }
 
-    // Prepare CSV content
     const headers = ['Period', 'Entries', 'Exits', 'Revenue', 'Date/Time'];
     const rows = stats.map(stat => {
       const date = new Date(stat.bucketStart);
@@ -79,10 +121,10 @@ export default function AdminReports() {
       if (activeTab === 'daily') {
         period = date.getHours().toString().padStart(2, '0') + ':00';
       } else if (activeTab === 'weekly') {
-        period = date.toLocaleDateString('en-US', { weekday: 'short' });
+        period = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
       } else {
-        const weekNum = Math.ceil(date.getDate() / 7);
-        period = `Week ${weekNum}`;
+        // Monthly view shows day with month
+        period = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       }
       
       return [
@@ -94,7 +136,6 @@ export default function AdminReports() {
       ];
     });
 
-    // Add summary row
     rows.push([]);
     rows.push(['SUMMARY', '', '', '', '']);
     rows.push(['Total Vehicles', totalVehicles, '', '', '']);
@@ -102,13 +143,11 @@ export default function AdminReports() {
     rows.push(['Average Revenue/Period', '', '', avgRevenuePerHour.toFixed(2), '']);
     rows.push(['Peak Revenue Period', peakRevenueSlot.time, '', peakRevenueSlot.revenue.toFixed(2), '']);
 
-    // Create CSV string
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.join(','))
     ].join('\n');
 
-    // Create and download file
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -126,13 +165,11 @@ export default function AdminReports() {
 
   return (
     <div className="h-full bg-[#F7F8FA] overflow-y-auto">
-      {/* Header */}
       <div className="bg-gradient-to-br from-[#3D5AFE] to-[#536DFE] p-6">
         <h1 className="text-xl text-white mb-2">Reports & Analytics</h1>
         <p className="text-white/80 text-sm">Financial and operational insights</p>
       </div>
 
-      {/* Tabs */}
       <div className="bg-white border-b border-gray-200 px-6 pt-4">
         <div className="flex gap-2">
           {tabs.map((tab) => {
@@ -155,9 +192,7 @@ export default function AdminReports() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-6 space-y-6">
-        {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-gradient-to-br from-[#3D5AFE] to-[#536DFE] rounded-[16px] p-5 shadow-md text-white">
             <div className="flex items-center gap-2 mb-3">
@@ -178,7 +213,6 @@ export default function AdminReports() {
           </div>
         </div>
 
-        {/* Vehicle Chart */}
         <ChartContainer title="Vehicle Traffic">
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={chartData}>
@@ -191,7 +225,6 @@ export default function AdminReports() {
           </ResponsiveContainer>
         </ChartContainer>
 
-        {/* Detailed Statistics */}
         <div className="bg-white rounded-[16px] p-6 shadow-sm">
           <h3 className="text-base mb-4">Key Metrics</h3>
           <div className="space-y-4">
@@ -218,7 +251,6 @@ export default function AdminReports() {
           </div>
         </div>
 
-        {/* Export Button */}
         <Button
           variant="secondary"
           fullWidth
