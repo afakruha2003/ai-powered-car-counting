@@ -1,16 +1,16 @@
 # Base URL of the backend server
 # All API endpoints are built using this base address
-BASE_URL = "https://ai-powered-car-counting.onrender.com/api"
+BASE_URL = "http://localhost:8000/api"
 
 # --------------------------------------------------
 # Backend API endpoints
 # --------------------------------------------------
 
 # Endpoint used to send incoming and outgoing vehicle counts
-COUNTER_COUNTS_ENDPOINT = f"{BASE_URL}/counter/update"
+COUNTER_COUNTS_ENDPOINT = f"{BASE_URL}/camera/data"
 
-# Endpoint used to upload annotated video frames (optional)
-FRAME_UPLOAD_ENDPOINT   = f"{BASE_URL}/video/frame"
+# Endpoint used to upload annotated video frames
+FRAME_UPLOAD_ENDPOINT   = f"{BASE_URL}/frames/upload"
 
 # --------------------------------------------------
 # Camera and model configuration

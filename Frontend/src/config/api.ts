@@ -19,4 +19,7 @@ export const API_ENDPOINTS = {
   SYSTEM: {
     GET_STATUS: (garageId: string) => `/api/system/${garageId}`,
   },
+  FRAMES: {
+    GET: (garageId: string) => `/api/frames/${garageId}`,
+  },
 } as const;
