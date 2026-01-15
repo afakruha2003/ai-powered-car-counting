@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import garageRoutes from "./routes/garageRoutes.js";
 import cameraRoutes from "./routes/cameraEventRoutes.js";
+import cameraFrameRoutes from "./routes/cameraFrameRoutes.js";
 import statisticsRoutes from "./routes/statusRouts.js";
 import liveRoutes from "./routes/liveStateRoutes.js";
 import systemRoutes from "./routes/systemStatusRoutes.js";
@@ -24,6 +25,7 @@ app.use(cookieParser());
 
 app.use("/api/garages", garageRoutes);
 app.use("/api/camera", cameraRoutes);
+app.use("/api/frames", cameraFrameRoutes);
 app.use("/api/statistics", statisticsRoutes);
 app.use("/api/live", liveRoutes);
 app.use("/api/auth", authRoutes);

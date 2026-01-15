@@ -1,25 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { systemStatusService } from '../services';
-import { SystemStatus } from '../types/api';
-import { storage } from '../utils/storage';
+import frameService, { CameraFrame } from '../services/frameService';
 
-export const useSystemStatus = (garageId?: string, autoRefresh = false, refreshInterval = 10000) => {
-  const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
+export const useFrame = (garageId: string | undefined, autoRefresh = true, refreshInterval = 5000) => {
+  const [frame, setFrame] = useState<CameraFrame | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isFirstFetchRef = useRef(true);
 
-  const fetchSystemStatus = async () => {
-    const id = garageId || storage.getGarageId();
-    if (!id) {
-      setError('No garage ID found');
-      if (isFirstFetchRef.current) {
-        setLoading(false);
-        isFirstFetchRef.current = false;
-      }
-      return;
-    }
+  const fetchFrame = async () => {
+    if (!garageId) return;
 
     try {
       if (isFirstFetchRef.current) {
@@ -27,16 +17,16 @@ export const useSystemStatus = (garageId?: string, autoRefresh = false, refreshI
       }
       setError(null);
       
-      const data = await systemStatusService.getSystemStatus(id);
-      setSystemStatus(data);
+      const frameData = await frameService.getLatestFrame(garageId);
+      setFrame(frameData);
       
       if (isFirstFetchRef.current) {
         isFirstFetchRef.current = false;
       }
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to fetch system status';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch frame';
       setError(errorMessage);
-      console.error('System status fetch error:', err);
+      console.error('Frame fetch error:', err);
     } finally {
       if (isFirstFetchRef.current) {
         setLoading(false);
@@ -50,11 +40,11 @@ export const useSystemStatus = (garageId?: string, autoRefresh = false, refreshI
       intervalRef.current = null;
     }
 
-    if (autoRefresh) {
-      fetchSystemStatus();
+    if (autoRefresh && garageId) {
+      fetchFrame();
       
       intervalRef.current = setInterval(() => {
-        fetchSystemStatus();
+        fetchFrame();
       }, refreshInterval);
     }
 
@@ -67,9 +57,9 @@ export const useSystemStatus = (garageId?: string, autoRefresh = false, refreshI
   }, [autoRefresh, refreshInterval, garageId]);
 
   return {
-    systemStatus,
+    frame,
     loading,
     error,
-    refetch: fetchSystemStatus,
+    fetchFrame,
   };
 };

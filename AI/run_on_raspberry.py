@@ -51,12 +51,12 @@ def main():
                 send_counts_to_backend(incoming, outgoing, camera_id=CAMERA_ID)
                 last_counts_sync_time = now
 
-            # 2) Optional frame synchronization (disabled by default)
-            # Used only for debugging or monitoring purposes
-            # if now - last_frame_sync_time >= FRAME_SYNC_INTERVAL:
-            #     frame_jpeg = detector.get_current_frame_jpeg()
-            #     send_frame_to_backend(frame_jpeg, camera_id=CAMERA_ID)
-            #     last_frame_sync_time = now
+            # 2) Frame synchronization for live monitoring
+            if now - last_frame_sync_time >= FRAME_SYNC_INTERVAL:
+                frame_jpeg = detector.get_current_frame_jpeg()
+                if frame_jpeg:
+                    send_frame_to_backend(frame_jpeg, camera_id=CAMERA_ID)
+                last_frame_sync_time = now
 
             # 3) Live annotated video preview
             frame = detector.current_frame

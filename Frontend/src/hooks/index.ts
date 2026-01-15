@@ -3,3 +3,4 @@ export { useGarage } from './useGarage';
 export { useLiveState } from './useLiveState';
 export { useStatistics } from './useStatistics';
 export { useSystemStatus } from './useSystemStatus';
+export { useFrame } from './useFrame';

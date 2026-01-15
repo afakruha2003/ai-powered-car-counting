@@ -2,7 +2,9 @@ import Garage from "../models/garageModel.js";
 import CameraEvent from "../models/cameraEventModel.js";
 import GarageLiveState from "../models/garageLiveStateModel.js";
 import GarageStats from "../models/garageStatsModel.js";
+import SystemStatus from "../models/systemStatusModel.js";
 import asyncHandler from "express-async-handler";
+import CustomError from "../utils/customError.js";
 
 export const receiveCameraData = asyncHandler(async (req, res) => {
    const { cameraId, incoming, outgoing } = req.body;
@@ -10,7 +12,7 @@ export const receiveCameraData = asyncHandler(async (req, res) => {
    const garage = await Garage.findOne({ uniqueCameraId: cameraId });
 
    if (!garage) {
-      throw new CustomEvent("garage not found", 404);
+      throw new CustomError("garage not found", 404);
    }
 
    const timestamp = new Date();
@@ -67,14 +69,15 @@ export const receiveCameraData = asyncHandler(async (req, res) => {
       timestamp,
    });
 
-   const bucketStart = new Date(timestamp);
-   bucketStart.setMinutes(0, 0, 0);
+   // Update HOUR bucket
+   const hourBucketStart = new Date(timestamp);
+   hourBucketStart.setMinutes(0, 0, 0);
 
    await GarageStats.findOneAndUpdate(
       {
          garage: garage._id,
          bucketType: "HOUR",
-         bucketStart,
+         bucketStart: hourBucketStart,
       },
       {
          $inc: {
@@ -82,6 +85,57 @@ export const receiveCameraData = asyncHandler(async (req, res) => {
             exits: deltaOutgoing,
             estimatedRevenue: deltaIncoming * garage.pricePerHour,
          },
+      },
+      { upsert: true }
+   );
+
+   // Update DAY bucket
+   const dayBucketStart = new Date(timestamp);
+   dayBucketStart.setHours(0, 0, 0, 0);
+
+   await GarageStats.findOneAndUpdate(
+      {
+         garage: garage._id,
+         bucketType: "DAY",
+         bucketStart: dayBucketStart,
+      },
+      {
+         $inc: {
+            entries: deltaIncoming,
+            exits: deltaOutgoing,
+            estimatedRevenue: deltaIncoming * garage.pricePerHour,
+         },
+      },
+      { upsert: true }
+   );
+
+   // Update WEEK bucket (week starts on Sunday)
+   const weekBucketStart = new Date(timestamp);
+   weekBucketStart.setDate(weekBucketStart.getDate() - weekBucketStart.getDay());
+   weekBucketStart.setHours(0, 0, 0, 0);
+
+   await GarageStats.findOneAndUpdate(
+      {
+         garage: garage._id,
+         bucketType: "WEEK",
+         bucketStart: weekBucketStart,
+      },
+      {
+         $inc: {
+            entries: deltaIncoming,
+            exits: deltaOutgoing,
+            estimatedRevenue: deltaIncoming * garage.pricePerHour,
+         },
+      },
+      { upsert: true }
+   );
+
+   // Update system status to mark camera as online
+   await SystemStatus.findOneAndUpdate(
+      { garage: garage._id },
+      {
+         aiCameraOnline: true,
+         lastCameraPing: timestamp,
       },
       { upsert: true }
    );

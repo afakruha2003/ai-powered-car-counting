@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Camera, DollarSign, Car, Activity } from 'lucide-react';
 import StatusChip from '../../StatusChip';
-import { useLiveState, useSystemStatus, useStatistics } from '../../../hooks';
+import { useLiveState, useSystemStatus, useStatistics, useFrame } from '../../../hooks';
 
 export default function AdminLive() {
+  const garageId = localStorage.getItem('garageId') || undefined;
   const { liveState } = useLiveState(undefined, true, 3000);
   const { systemStatus } = useSystemStatus(undefined, true, 10000);
   const { stats } = useStatistics({ bucketType: 'HOUR' }, true, 10000);
+  const { frame } = useFrame(garageId, true, 5000);
   const [, setTick] = useState(0);
 
   // Update timestamp display every second
@@ -56,13 +58,25 @@ export default function AdminLive() {
             </div>
           </div>
 
-          {/* Camera Placeholder */}
+          {/* Camera Feed */}
           <div className="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-[12px] overflow-hidden mb-4">
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <Camera className="w-16 h-16 text-gray-600 mb-3" />
-              <p className="text-gray-500 text-sm">Live Camera Feed</p>
-              <p className="text-gray-600 text-xs mt-1">Real-time Monitoring</p>
-            </div>
+            {frame && frame.data ? (
+              <img 
+                src={`data:image/jpeg;base64,${frame.data}`}
+                alt="Live Camera Feed"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <Camera className="w-16 h-16 text-gray-600 mb-3" />
+                <p className="text-gray-500 text-sm">
+                  {isOnline ? 'Waiting for camera feed...' : 'Camera Offline'}
+                </p>
+                <p className="text-gray-600 text-xs mt-1">
+                  {isOnline ? 'Frames update every 5 seconds' : 'Check camera connection'}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Live Stats */}
