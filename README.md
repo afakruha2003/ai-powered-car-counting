@@ -69,10 +69,12 @@ The system consists of three main modules working in synchronization:
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & Hardware
 
 ### 🧠 AI & Edge Computing (`/AI`)
-* **Hardware:** Raspberry Pi 4/5, USB Camera
+* **Core Hardware:** Raspberry Pi 5 (8GB RAM), Logitech BRIO 100 USB Camera
+* **Power & Connectivity:** Raspberry Pi Original 27W Power Supply, Micro-HDMI Adapter
+* **Setup Peripherals:** HP Monitor LE1901w, Standard Mouse & Keyboard
 * **Language:** Python 3.9+
 * **Libraries:** OpenCV, Ultralytics YOLOv8, PyTorch, NumPy, Requests
 
