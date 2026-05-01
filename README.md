@@ -1,4 +1,4 @@
-# 🚗 Smart Parking AI - Vehicle Counting System
+#  Smart Parking AI - Vehicle Counting System
 > **FE401 - Multidisciplinary Integrated Project**
 > A collaboration between Software Engineering and Electrical-Electronics Engineering students.
 
@@ -6,7 +6,7 @@
 ![Tech Stack](https://img.shields.io/badge/Stack-Python%20|%20Node.js%20|%20React%20|%20Capacitor-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-## 📖 Project Objective
+##  Project Objective
 
 The goal of this project is to develop an integrated system that combines hardware system integration, computer vision, and full-stack software development to manage parking facilities efficiently.
 
@@ -16,7 +16,7 @@ The goal of this project is to develop an integrated system that combines hardwa
 
 ---
 
-## 👥 The Team
+##  The Team
 
 ### Software Engineering Team
 
@@ -42,7 +42,7 @@ The goal of this project is to develop an integrated system that combines hardwa
 
 ---
 
-## 🏗 System Architecture
+## System Architecture
 
 The system consists of three main modules working in synchronization:
 
@@ -52,7 +52,7 @@ The system consists of three main modules working in synchronization:
 
 ---
 
-## 📱 Features
+##  Features
 
 ### AI Module (Edge)
 * **AI Detection:** Uses **YOLOv8 (Nano)** for real-time vehicle recognition (Cars, Trucks, Buses, Motorcycles).
@@ -69,22 +69,22 @@ The system consists of three main modules working in synchronization:
 
 ---
 
-## 🛠️ Tech Stack & Hardware
+##  Tech Stack & Hardware
 
-### 🧠 AI & Edge Computing (`/AI`)
+###  AI & Edge Computing (`/AI`)
 * **Core Hardware:** Raspberry Pi 5 (8GB RAM), Logitech BRIO 100 USB Camera
 * **Power & Connectivity:** Raspberry Pi Original 27W Power Supply, Micro-HDMI Adapter
 * **Setup Peripherals:** HP Monitor LE1901w, Standard Mouse & Keyboard
 * **Language:** Python 3.9+
 * **Libraries:** OpenCV, Ultralytics YOLOv8, PyTorch, NumPy, Requests
 
-### 🔙 Backend API (`/Backend`)
+###  Backend API (`/Backend`)
 * **Runtime:** Node.js
 * **Framework:** Express.js
 * **Database:** MongoDB (Mongoose ODM)
 * **Security:** JWT Authentication, Bcrypt, CORS
 
-### 📱 Mobile Application (`/Frontend`)
+###  Mobile Application (`/Frontend`)
 * **Framework:** React (Vite), TypeScript
 * **Mobile Wrapper:** Capacitor (Native iOS & Android runtime)
 * **Styling:** Tailwind CSS, Shadcn/UI, Lucide React
@@ -92,7 +92,7 @@ The system consists of three main modules working in synchronization:
 
 ---
 
-## 🚀 Installation & Setup Guide
+##  Installation & Setup Guide
 
 ### 1. Backend Setup
 The backend is required for the AI and Mobile App to function.
@@ -183,7 +183,7 @@ python run_on_raspberry.py
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```plaintext
 ai-powered-car-counting/
@@ -209,15 +209,6 @@ ai-powered-car-counting/
     └── ios/                # iOS native project
 ```
 
-## 📄 Deliverables Checklist
-
-- [x] Camera Sensor Design (EEE)
-- [x] AI Counting Algorithm (SENG/EEE)
-- [x] Data Transmission to Cloud (EEE/SENG)
-- [x] Mobile Application (SENG)
-- [x] GitHub Repository with Documentation
-- [x] Final Report
-
-## 📜 License
+##  License
 
 This project is open-source and available under the MIT License.
